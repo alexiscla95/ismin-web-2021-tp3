@@ -1,10 +1,10 @@
-import { Module } from '@nestjs/common';
+import { HttpModule, Module } from '@nestjs/common';
 import { BookController } from './book.controller';
 import { BookService } from './book.service';
 import { PaginationService } from './pagination.service';
 
 @Module({
-  imports: [],
+  imports: [HttpModule],
   controllers: [BookController],
   providers: [BookService, PaginationService],
 })

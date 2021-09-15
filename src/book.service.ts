@@ -1,16 +1,21 @@
-import { Injectable, OnModuleInit } from '@nestjs/common'
-import { Book } from './interface'
+import { Injectable, OnModuleInit, ParseBoolPipe } from '@nestjs/common'
+import { HttpService } from '@nestjs/axios'
+import { Book, bookApi } from './interface'
 import { readFile } from 'fs/promises'
 
 @Injectable()
 export class BookService implements OnModuleInit {
   private bookStore: Book[] = []
 
+  constructor(private httpService: HttpService) {}
+
   async onModuleInit(): Promise<void> {
     try {
       const promise = readFile('src/dataset.json', 'utf8')
       await promise
-      this.addFile(promise)
+      await this.addFile(promise)
+      const netBooks = await this.httpService.get('https://api.npoint.io/40518b0773c787f94072').toPromise()
+      await this.addJson(netBooks.data)
     } catch (err) {
       console.log(err)
     }
@@ -53,8 +58,18 @@ export class BookService implements OnModuleInit {
     });
   }
 
-  // getBooksPublishedBefore(aDate: string | Date): Book[] {
-  //   const compareDate = new Date(aDate)
-  //   return this.bookStore.filter(e => e.date <= compareDate)
-  // }
+  addJson(data: any[]): void {
+    data.forEach(e => {
+      this.addBook(this.bookParse(e))
+    });
+  }
+
+  bookParse(book: bookApi): Book {
+    const parsedBook: Book = {
+      title: book.title,
+      author: book.authors,
+      date: book.publication_date
+    }
+    return parsedBook
+  }
 }

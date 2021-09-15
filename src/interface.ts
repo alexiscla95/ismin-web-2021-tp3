@@ -9,3 +9,12 @@ export interface listQueryBook {
   nbrResultPerPage?: string,
   page?: string,
 }
+
+export interface bookApi {
+  title: string,
+  authors: string,
+  num_pages: string,
+  publisher: string,
+  language_code: string,
+  publication_date: string
+}
