@@ -114,4 +114,55 @@ describe('Books API', () => {
 
     expect(response.body).toEqual([]);
   });
+
+  it(`/Post books by search`, async () => {
+    // First prepare the data by adding some books
+    await httpRequester.post('/books').send({
+      title: 'Candide',
+      author: 'Voltaire',
+      date: '1759',
+    });
+    await httpRequester.post('/books').send({
+      title: 'Zadig',
+      author: 'Voltaire',
+      date: '1748',
+    });
+    await httpRequester.post('/books').send({
+      title: 'La Cantatrice chauve',
+      author: 'Ionesco',
+      date: '1950',
+    });
+
+    // Then get the previously stored book
+    const response = await httpRequester
+      .post('/books/search')
+      .send({ term: 'olt' })
+      .expect(201);
+
+    expect(response.body).toEqual([
+      {
+        title: 'Candide',
+        author: 'Voltaire',
+        date: '1759',
+      },
+      {
+        title: 'Zadig',
+        author: 'Voltaire',
+        date: '1748',
+      },
+    ]);
+    
+    const response2 = await httpRequester
+        .post('/books/search')
+        .send({ term: 'one' })
+        .expect(201);
+  
+      expect(response2.body).toEqual([
+        {
+          title: 'La Cantatrice chauve',
+          author: 'Ionesco',
+          date: '1950',
+        }
+      ]);
+  });
 });
