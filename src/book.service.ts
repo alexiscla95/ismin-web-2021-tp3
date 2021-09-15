@@ -8,8 +8,9 @@ export class BookService implements OnModuleInit {
 
   async onModuleInit(): Promise<void> {
     try {
-      const data = readFile('src/dataset.json')
-      await data
+      const promise = readFile('src/dataset.json', 'utf8')
+      await promise
+      this.addFile(promise)
     } catch (err) {
       console.log(err)
     }
@@ -43,6 +44,13 @@ export class BookService implements OnModuleInit {
 
   search(term: string): Book[] {
     return this.bookStore.filter(e => (e.title.includes(term) || e.author.includes(term)))
+  }
+
+  async addFile(promise: Promise<string>): Promise<void> {
+    const newBookStore = JSON.parse(await promise)
+    newBookStore.forEach((e: Book) => {
+      this.addBook(e)
+    });
   }
 
   // getBooksPublishedBefore(aDate: string | Date): Book[] {
