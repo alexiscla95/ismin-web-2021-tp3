@@ -1,7 +1,10 @@
-import { Injectable, OnModuleInit, ParseBoolPipe } from '@nestjs/common'
+import { Injectable, OnModuleInit } from '@nestjs/common'
 import { HttpService } from '@nestjs/axios'
 import { Book, bookApi } from './interface'
 import { readFile } from 'fs/promises'
+import { map } from 'rxjs/operators'
+import { AxiosResponse } from 'axios';
+
 
 @Injectable()
 export class BookService implements OnModuleInit {
@@ -14,8 +17,15 @@ export class BookService implements OnModuleInit {
       const promise = readFile('src/dataset.json', 'utf8')
       await promise
       await this.addFile(promise)
-      const netBooks = await this.httpService.get('https://api.npoint.io/40518b0773c787f94072').toPromise()
-      await this.addJson(netBooks.data)
+      this.httpService.get<bookApi[]>('https://api.npoint.io/40518b0773c787f94072').pipe(
+          map((axiosResponse) => {
+            return axiosResponse.data
+          })
+      )
+      .subscribe((res) => {
+        this.addJson(res)
+      }
+      )
     } catch (err) {
       console.log(err)
     }
